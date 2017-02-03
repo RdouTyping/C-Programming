@@ -1,26 +1,28 @@
 // C program for generic linked list
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
 /* A linked list node */
 struct node
 {
 	// Any data type can be stored in this node
 	void *data;
-
+    char *type;  
 	struct node *next;
 };
 
 /* Function to add a node at the beginning of Linked List.
 This function expects a pointer to the data to be added
 and size of the data type */
-void push(struct node** head_ref, void *new_data, size_t data_size)
+void push(struct node** head_ref, void *new_data, size_t data_size, char *type)
 {
 	// Allocate memory for node
 	struct node* new_node = (struct node*)malloc(sizeof(struct node));
 
 	new_node->data = malloc(data_size);
 	new_node->next = (*head_ref);
+    new_node->type = type;
 
 	// Copy contents of new_data to newly allocated memory.
 	// Assumption: char takes 1 byte.
@@ -30,18 +32,6 @@ void push(struct node** head_ref, void *new_data, size_t data_size)
 
 	// Change head pointer as new node is added at the beginning
 	(*head_ref) = new_node;
-}
-
-/* Function to print nodes in a given linked list. fpitr is used
-to access the function to be used for printing current node data.
-Note that different data types need different specifier in printf() */
-void printList(struct node *node, void (*fptr)(void *))
-{
-	while (node != NULL)
-	{
-		(*fptr)(node->data);
-		node = node->next;
-	}
 }
 
 // Function to print an integer
@@ -56,6 +46,23 @@ void printFloat(void *f)
 printf(" %f", *(float *)f);
 }
 
+/* Function to print nodes in a given linked list. fpitr is used
+to access the function to be used for printing current node data.
+Note that different data types need different specifier in printf() */
+//void printList(struct node *node, void (*fptr)(void *))
+void printList(struct node *node)
+{
+	while (node != NULL)
+	{
+        if (strcmp(node->type, "int") == 0)
+            printInt(node->data);
+        else if (strcmp(node->type, "float") == 0)
+            printFloat(node->data);
+		node = node->next;
+	}
+}
+
+
 /* Driver program to test above function */
 int main()
 {
@@ -65,19 +72,31 @@ int main()
 	unsigned int_size = sizeof(int);
 	int arr[] = {10, 20, 30, 40, 50}, i;
 	for (i=4; i>=0; i--)
-	push(&start, &arr[i], int_size);
+	push(&start, &arr[i], int_size, "int");
 	printf("Created integer linked list is \n");
-	printList(start, printInt);
+	printList(start);
 
 	// Create and print a float linked list
 	unsigned float_size = sizeof(float);
 	start = NULL;
 	float arr2[] = {10.1, 20.2, 30.3, 40.4, 50.5};
 	for (i=4; i>=0; i--)
-	push(&start, &arr2[i], float_size);
-	printf("\n\nCreated float linked list is \n");
-	printList(start, printFloat);
+	push(&start, &arr2[i], float_size, "float");
+	printf("\nCreated float linked list is \n");
+	printList(start);
+	printf("\n");
+    
+    // my test case
+	start = NULL;
+    for (i = 4; i >=0; i--) { 
+        push(&start, &arr2[i], float_size, "float"); 
+        push(&start, &arr[i], float_size, "int"); 
+    }
 
-	return 0;
+	printf("\nCreated mix linked list is \n");
+	printList(start);
+	printf("\n");
+	
+    return 0;
 }
 
